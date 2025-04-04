@@ -1,0 +1,55 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependency directories
+node_modules/
+
+# Build output
+lib/
+dist/
+temp/
+release/
+solution/
+*.sppkg
+.heft/
+
+# VS Code settings
+.vscode/
+
+# SPFx specific
+*.resx.ts
+*.scss.ts
+
+# Coverage
+coverage/
+
+# Mac OS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Visual Studio / .NET
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.ntvs_analysis.dat
+.vs/
+bin/
+obj/
+
+# Compression files
+*.rar
+*.zip
+
+# OneDrive backups
+~$*
+
+# Local backups
+*.bak
+*.tmp

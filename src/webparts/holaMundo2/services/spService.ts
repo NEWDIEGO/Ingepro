@@ -3,8 +3,17 @@ import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/items";
 
+
 // Inicializar SharePoint PnP.js con la URL del sitio
 const sp: SPFI = spfi("https://ntechilespa.sharepoint.com/sites/ingp");
+
+import "@pnp/sp/items/list";
+//import { IList } from "@pnp/sp/lists";
+//import { IItem, IItems } from "@pnp/sp/items";
+
+
+export const getSP = (): SPFI => sp;
+export { sp };
 
 // Función para agregar un elemento a la lista Distribución
 export const agregarADistribucion = async (

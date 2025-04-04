@@ -3,6 +3,10 @@ import { useState, useEffect } from "react";
 import { /*ISPHttpClientOptions*/ SPHttpClient, SPHttpClientResponse } from "@microsoft/sp-http";
 import { IHolaMundo2Props } from "./IHolaMundo2Props";
 import { SPFI, spfi } from "@pnp/sp";
+import { SPHttpClient, SPHttpClientResponse } from "@microsoft/sp-http";
+import { IHolaMundo2Props } from "./IHolaMundo2Props";
+import { spfi, SPFI } from "@pnp/sp";
+import { SPFx } from "@pnp/sp";
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/items";
@@ -18,14 +22,69 @@ import "@pnp/sp/items";
 
 const sp: SPFI = spfi("https://ntechilespa.sharepoint.com/sites/ingp");
 
+import "@pnp/sp/items/list";
+import "@pnp/sp/items/get-all";
+import { WebPartContext } from "@microsoft/sp-webpart-base";
+
+import { Logger, LogLevel } from "@pnp/logging";
+
+Logger.subscribe(console);
+Logger.activeLogLevel = LogLevel.Info; // o .Verbose si necesitas más detalle
+
+let _sp: any;
+
+fetch('https://example.sharepoint.com/api/data')
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error atrapado:', error));
+
+export const getSP = (context?: WebPartContext) => {
+  if (!_sp && context) {
+    _sp = spfi().using(SPFx(context));
+  }
+  return _sp;
+};
+
+const sp: SPFI = spfi("https://ntechilespa.sharepoint.com/sites/ingp");
+
+export const guardarEnSharePoint = async (
+  nombreArchivo: string,
+  accion: string,
+  destinatario: string,
+  numeroTransmittal: string,
+  fecha: string
+): Promise<void> => {
+  console.log("✅ Iniciando función guardarEnSharePoint");
+  try {
+    const payload = {
+      Title: nombreArchivo,
+      Accion: accion,
+      Destinatario: destinatario,
+      NumeroTransmittal: numeroTransmittal,
+      fecha: fecha
+    };
+    console.log("📤 Datos a enviar:", payload);
+
+    const res = await sp.web.lists.getByTitle("Distribucion").items.add(payload);
+
+    console.log("✅ Elemento guardado en SharePoint:", res);
+  } catch (error) {
+    console.error("❌ Error al guardar en SharePoint:", error.message, error);
+  }
+};
+
+
 interface IDocumentoTecnico {
   id: number;
   name: string;
 }
+
 //url para localhost
 // Se extiende la interfaz global de `window` para agregar dos funciones personalizadas 
 // que estarán disponibles en el objeto global `window`.
 // Estas funciones permitirán interactuar con SharePoint desde cualquier parte de la aplicación.
+
+
 
 async function verificarConexion(): Promise<void> {
   try {
@@ -69,6 +128,7 @@ interface IHolaMundo2State {
 // Se define la clase `HolaMundo2`, que extiende de `React.Component`.
 // Esta clase representa un componente de React con estado, que gestiona la asignación de documentos en SharePoint.
 
+
 export default class HolaMundo2 extends React.Component<IHolaMundo2Props, IHolaMundo2State> { 
 
   // Constructor del componente, recibe `props` como argumento.
@@ -85,6 +145,9 @@ export default class HolaMundo2 extends React.Component<IHolaMundo2Props, IHolaM
       actionCount: {}, //accion contador
       accionSeleccionada: null, // Agregar aquí la acción seleccionada
       contadorAccion: 0 // Agregar aquí el contador de la acción seleccionada
+      actionCount: {} //accion contador
+      //accionSeleccionada: null, // Agregar aquí la acción seleccionada
+      //contadorAccion: 0 // Agregar aquí el contador de la acción seleccionada
     }
     // Se enlazan los métodos a la instancia de la clase para garantizar el acceso al contexto `this`.
 
@@ -112,6 +175,8 @@ export default class HolaMundo2 extends React.Component<IHolaMundo2Props, IHolaM
       this.setState({ contadorAccion: contador });
   };
   // ✅ Ahora podemos usar el contexto de SharePoint de forma segura
+
+  //Ahora podemos usar el contexto de SharePoint de forma segura
 
   async verificarConexion(): Promise<void> {
     try {
@@ -145,16 +210,21 @@ mostrarVentana = (): void => {
 
   // Verifica si la ventana emergente se abrió correctamente.
 
+
+  const popupWindow = window.open("about:blank", "_blank", "width=800,height=600");
+
   if (!popupWindow) {
       alert("Por favor, permite las ventanas emergentes en tu navegador.");
       return; // Si no se pudo abrir, se muestra una alerta y se detiene la ejecución.
   }
+
 
   // Escribe el contenido HTML dentro de la ventana emergente.
   // Se utiliza `document.write()` para insertar un documento HTML completo en la nueva ventana.
 
   // Cierra el documento de la ventana emergente para finalizar la escritura del contenido.
   
+
   popupWindow.document.close();
 }
 
@@ -178,6 +248,7 @@ private async actualizarContadorAccion(actionTitle: string): Promise<void> {
       });
 
       await this.props.context.spHttpClient.post(updateUrl, SPHttpClient.configurations.v1, {
+      await this.props.context.spHttpClient.get(updateUrl, SPHttpClient.configurations.v1, {
         headers: {
           'Accept': 'application/json;odata=verbose',
           'Content-Type': 'application/json;odata=verbose',
@@ -199,6 +270,7 @@ private async actualizarContadorAccion(actionTitle: string): Promise<void> {
       });
 
       await this.props.context.spHttpClient.post(createUrl, SPHttpClient.configurations.v1, {
+      await this.props.context.spHttpClient.get(createUrl, SPHttpClient.configurations.v1, {
         headers: {
           'Accept': 'application/json;odata=verbose',
           'Content-Type': 'application/json;odata=verbose',
@@ -238,6 +310,12 @@ private async guardarEnSharePoint(
       Destinatario: destinatario, // Destinatario del archivo
       NumeroTransmittal: numeroTransmittal, // Número único de transmittal
       FechaDistribucion: fecha // Fecha de distribución (verifica si el campo existe)
+      __metadata: { type: "SP.Data.DistribucionListItem" },
+      Title: nombreArchivo, // Nombre del archivo
+      accion: accion, // Acción a realizar (verifica el nombre en SharePoint)
+      destinatario: destinatario, // Destinatario del archivo
+      NumeroTransmittal: numeroTransmittal, // Número único de transmittal
+      fecha: fecha // Fecha de distribución (verifica si el campo existe)
     });
 
     if (response?.data) {
@@ -331,6 +409,18 @@ private getData = async (): Promise<void> => {
     // Realiza una solicitud GET a la API de SharePoint para obtener los elementos de la lista "DocumentosTecnicos".
     // Se seleccionan los campos `Id` y `File/Name` y se expande la propiedad `File` para acceder al nombre del archivo.
 
+public async componentDidMount(): Promise<void> {
+
+  await this.getData();
+
+  await this.getActions();
+
+  await this.getRecipients();
+}
+
+private getData = async (): Promise<void> => {
+  try {
+
     const response = await this.props.context.spHttpClient.get(
       `${this.props.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('DocumentosTecnicos')/items?$select=Id,File/Name&$expand=File`,
       SPHttpClient.configurations.v1
@@ -341,6 +431,8 @@ private getData = async (): Promise<void> => {
     const data: { value: { Id: number; File: { Name: string } }[] } = await response.json();
 
     // Mapea los datos obtenidos y los transforma en un formato compatible con la interfaz `IDocumentoTecnico`.
+
+    const data: { value: { Id: number; File: { Name: string } }[] } = await response.json();
 
     const lista = data.value.map((item) => ({
       id: item.Id, // Identificador del documento.
@@ -366,6 +458,9 @@ private getActions = async (): Promise<void> => {
     // Realiza una solicitud GET a la API de SharePoint para obtener los elementos de la lista "Accion".
     // Se selecciona solo el campo `Title`, que representa el nombre de cada acción.
 
+private getActions = async (): Promise<void> => {
+  try {
+
     const response = await this.props.context.spHttpClient.get(
       `${this.props.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Accion')/items?$select=Title`,
       SPHttpClient.configurations.v1
@@ -383,6 +478,12 @@ private getActions = async (): Promise<void> => {
 
     this.setState({ actions });
         // Llamar a actualizarContadorAccion para cada acción
+    const data: { value: { Title: string }[] } = await response.json();
+
+    const actions = data.value.map((item) => item.Title);
+
+    this.setState({ actions });
+
       actions.forEach(async (action) => {
         await this.actualizarContadorAccion(action);
       });
@@ -401,6 +502,9 @@ private getRecipients = async (): Promise<void> => {
 
     // Realiza una solicitud GET a la API de SharePoint para obtener los elementos de la lista "Destinatarios".
     // Se selecciona solo el campo `Title`, que representa el nombre de cada destinatario.
+
+private getRecipients = async (): Promise<void> => {
+  try {
 
     const response = await this.props.context.spHttpClient.get(
       `${this.props.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Destinatarios')/items?$select=Title`,
@@ -421,6 +525,13 @@ private getRecipients = async (): Promise<void> => {
   } catch (error) {
 
     // Captura y muestra un mensaje de error en caso de que la solicitud falle.
+
+    const data: { value: { Title: string }[] } = await response.json();
+
+    const recipients = data.value.map((item) => item.Title);
+
+    this.setState({ recipients });
+  } catch (error) {
 
     console.error("Error fetching recipients:", error);
   }
@@ -443,6 +554,49 @@ private handleButtonClick = async (): Promise<void> => {
   if (popupWindow) {
 
       // Escribe el contenido HTML de la ventana emergente.
+
+private handleButtonClick = async (): Promise<void> => {
+
+  const popupWindow = window.open("", "_blank");
+
+  console.log("Botón 'Asignar a Transmittal' fue clickeado");
+
+  const contadorAcciones: Record<string, number> = {};
+  const checkboxes = document.querySelectorAll('.checkbox:checked');
+  checkboxes.forEach((checkbox) => {
+    const row = checkbox.closest("tr");
+    const accion = row?.cells[3].innerText;
+    if (accion) {
+      contadorAcciones[accion] = (contadorAcciones[accion] || 0) + 1;
+    }
+  });
+
+  for (const accion in contadorAcciones) {
+    if (!Object.prototype.hasOwnProperty.call(contadorAcciones, accion)) {
+      continue;
+    }
+  
+    const cantidad = contadorAcciones[accion];
+    const items = await sp.web.lists
+      .getByTitle("Accion")
+      .items.select("Id", "Title", "Acciones asignadas")
+      .filter(`Title eq '${accion}'`)();
+  
+    if (items.length > 0) {
+      const item = items[0];
+      const id = item.Id;
+      const actual = item["Acciones asignadas"] || 0;
+  
+      await sp.web.lists
+        .getByTitle("Accion")
+        .items.getById(id)
+        .update({
+          "Acciones asignadas": actual + cantidad,
+        });
+    }
+  }
+
+  if (popupWindow) {
 
       popupWindow.document.write(`
       <html>
@@ -517,6 +671,7 @@ private handleButtonClick = async (): Promise<void> => {
             console.log("Destinatario seleccionado:", recipientSelected);
 
             let numeroTransmittal = document.querySelector("#idDelInput")?.value || "";
+            let numeroTransmittal = '12345';
             if (!numeroTransmittal) {
                 console.error("Error: numeroTransmittal tiene un valor vacío.");
             }
@@ -539,8 +694,8 @@ private handleButtonClick = async (): Promise<void> => {
               console.log("Botón 'Asignar a Distribución' presionado.");
               
               const actionValue = document.getElementById("action").value;
-              const recipientValue = document.getElementById("recipient").value;
-              
+              const recipientValue = document.getElementById("recipient").value;              
+            
               const checkboxes = document.querySelectorAll('.checkbox:checked');
 
               if (actionValue && recipientValue && checkboxes.length > 0) {
@@ -548,12 +703,16 @@ private handleButtonClick = async (): Promise<void> => {
                       const row = checkbox.closest("tr");
                       if (row) {
                           const nombreArchivo = row.cells[1].innerText;
+                          const numeroTransmittal = Math.floor(100000 + Math.random() * 900000);
+                          const fecha = new Date().toISOString().slice(0, 19).replace("T", " ");
+
                           row.cells[2].innerText = "Sí";
                           row.cells[3].innerText = actionValue;
                           row.cells[4].innerText = recipientValue;
 
                           console.log("Llamando a guardarEnSharePoint:", nombreArchivo, actionValue, recipientValue, numeroTransmittal, fecha);
                           window.opener.guardarEnSharePoint(nombreArchivo, accion, destinatario, numeroTransmittal, fecha);
+
                       }
                   });
                   console.log("Llamando a actualizarContadores:", actionValue, recipientValue);
@@ -674,6 +833,8 @@ private handleButtonClick = async (): Promise<void> => {
 
                         // Llamamos a la API REST de SharePoint para guardar los datos
                         window.opener.guardarEnSharePoint(nombreArchivo, accion, destinatario, numeroTransmittal, fecha);
+                        console.log("Llamando a guardarEnSharePoint:", nombreArchivo, accion, destinatario, numeroTransmittal, fecha);
+
                     }
                 }
 
@@ -750,6 +911,25 @@ popupWindow.document.getElementById('assignDistributionButton')?.addEventListene
 }
 
 
+
+      const actionValue = (popupWindow.document.getElementById("action") as HTMLSelectElement)?.value;
+
+      const recipientValue = (popupWindow.document.getElementById("recipient") as HTMLSelectElement)?.value;
+
+      console.log(`Acción seleccionada: ${actionValue}, Destinatario seleccionado: ${recipientValue}`);
+
+      if (actionValue && recipientValue) {
+          await this.actualizarContadores(actionValue, recipientValue);
+      } else {
+          alert("Debe seleccionar una acción y un destinatario.");
+      }
+  } catch (error) {
+      console.error("Error en actualizarContadores:", error);
+  }
+  });
+  }
+}
+
 private async actualizarContadores(actionValue: string, recipientValue: string): Promise<void> {
   if (!actionValue || !recipientValue) {
       alert("Debe seleccionar una acción y un destinatario.");
@@ -760,6 +940,7 @@ private async actualizarContadores(actionValue: string, recipientValue: string):
       console.log(`📌 Buscando acción en SharePoint con filtro: Title eq '${actionValue}'`);
 
       // 🔹 Buscar la acción en la lista "Accion"
+
       const accionItems = await sp.web.lists.getByTitle("Accion").items
           .filter(`Title eq '${actionValue}'`).top(1)();
 
@@ -773,6 +954,9 @@ private async actualizarContadores(actionValue: string, recipientValue: string):
           // 🔹 Actualizar en SharePoint usando REST API (PATCH)
           await sp.web.lists.getByTitle("Accion").items.getById(accionItemId).update({
               Acciones_x0020_asignadas: accionContador
+          await sp.web.lists.getByTitle("Accion").items.getById(accionItemId).update({
+            __metadata: { type: "SP.Data.AccionListItem" },
+            Acciones_x0020_asignadas: accionContador
           });
 
           console.log(`Acción actualizada en SharePoint: ${actionValue} N°${accionContador}`);
@@ -781,6 +965,12 @@ private async actualizarContadores(actionValue: string, recipientValue: string):
           const newItem = await sp.web.lists.getByTitle("Accion").items.add({
               Title: actionValue,
               Acciones_x0020_asignadas: 1
+
+
+          const newItem = await sp.web.lists.getByTitle("Accion").items.add({
+            __metadata: { type: "SP.Data.AccionListItem" },
+            Title: actionValue,
+            Acciones_x0020_asignadas: 1
           });
 
           accionItemId = newItem.data.Id;
@@ -792,6 +982,8 @@ private async actualizarContadores(actionValue: string, recipientValue: string):
       console.log(`📌 Buscando destinatario "${recipientValue}" en SharePoint...`);
 
       // 🔹 Buscar destinatario en la lista "Destinatarios"
+      console.log(`📌 Buscando destinatario "${recipientValue}" en SharePoint...`);
+
       const destinatarioItems = await sp.web.lists.getByTitle("Destinatarios").items
           .filter(`Title eq '${recipientValue}'`).top(1)();
 
@@ -805,6 +997,9 @@ private async actualizarContadores(actionValue: string, recipientValue: string):
           // 🔹 Actualizar en SharePoint usando REST API (PATCH)
           await sp.web.lists.getByTitle("Destinatarios").items.getById(destinatarioItemId).update({
               Destinatarios_x0020_asignados: destinatarioContador
+          await sp.web.lists.getByTitle("Destinatarios").items.getById(destinatarioItemId).update({
+            __metadata: { type: "SP.Data.AccionListItem" },
+            Destinatarios_x0020_asignados: destinatarioContador
           });
 
           console.log(`✅ Destinatario actualizado en SharePoint: ${recipientValue} N°${destinatarioContador}`);
@@ -813,6 +1008,12 @@ private async actualizarContadores(actionValue: string, recipientValue: string):
           const newItem = await sp.web.lists.getByTitle("Destinatarios").items.add({
               Title: recipientValue,
               Destinatarios_x0020_asignados: 1
+
+
+          const newItem = await sp.web.lists.getByTitle("Destinatarios").items.add({
+            __metadata: { type: "SP.Data.AccionListItem" },
+            Title: recipientValue,
+            Destinatarios_x0020_asignados: 1
           });
 
           destinatarioItemId = newItem.data.Id;

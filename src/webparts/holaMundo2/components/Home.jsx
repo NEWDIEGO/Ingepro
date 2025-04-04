@@ -35,6 +35,7 @@ async function asignarADistribucion() {
           let data = {
               __metadata: { type: "SP.Data.DistribucionListItem" }, // Nombre de la lista en SharePoint
               Nombre: listaDeArchivos[i], // Nombre del archivo
+              Title: listaDeArchivos[i], // Nombre del archivo
               Accion: actionValue, // Acción asignada
               Destinatario: recipientValue // Destinatario asignado
           };
