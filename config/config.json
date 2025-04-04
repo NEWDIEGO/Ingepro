@@ -1,0 +1,27 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "hola-mundo-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/holaMundo/HolaMundoWebPart.js",
+          "manifest": "./src/webparts/holaMundo/HolaMundoWebPart.manifest.json"
+        }
+      ]
+    },
+    "hola-mundo-2-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/holaMundo2/HolaMundo2WebPart.js",
+          "manifest": "./src/webparts/holaMundo2/HolaMundo2WebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "HolaMundoWebPartStrings": "lib/webparts/holaMundo/loc/{locale}.js",
+    "HolaMundo2WebPartStrings": "lib/webparts/holaMundo2/loc/{locale}.js"
+  }
+}
