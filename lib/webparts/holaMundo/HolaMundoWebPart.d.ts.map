@@ -1,0 +1,1 @@
+{"version":3,"file":"HolaMundoWebPart.d.ts","sourceRoot":"","sources":["../../../src/webparts/holaMundo/HolaMundoWebPart.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,qBAAqB,EAAE,MAAM,4BAA4B,CAAC;AAGnE,MAAM,CAAC,OAAO,OAAO,gBAAiB,SAAQ,qBAAqB,CAAC,EAAE,CAAC;IACnE,OAAO,CAAC,EAAE,CAAO;IAEJ,MAAM,IAAI,OAAO,CAAC,IAAI,CAAC;CA0BvC"}

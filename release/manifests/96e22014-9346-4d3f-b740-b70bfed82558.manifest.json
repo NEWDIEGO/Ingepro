@@ -1,0 +1,50 @@
+{
+  "id": "96e22014-9346-4d3f-b740-b70bfed82558",
+  "alias": "HolaMundoWebPart",
+  "componentType": "WebPart",
+  "version": "0.0.1",
+  "manifestVersion": 2,
+  "requiresCustomScript": false,
+  "supportedHosts": [
+    "SharePointWebPart",
+    "TeamsPersonalApp",
+    "TeamsTab",
+    "SharePointFullPage"
+  ],
+  "supportsThemeVariants": true,
+  "preconfiguredEntries": [
+    {
+      "groupId": "5c03119e-3074-46fd-976b-c60198311f70",
+      "group": {
+        "default": "Advanced"
+      },
+      "title": {
+        "default": "HolaMundo"
+      },
+      "description": {
+        "default": "HolaMundo description"
+      },
+      "officeFabricIconFontName": "Page",
+      "properties": {
+        "description": "HolaMundo"
+      }
+    }
+  ],
+  "loaderConfig": {
+    "internalModuleBaseUrls": [
+      "<!-- PATH TO CDN -->"
+    ],
+    "entryModuleId": "hola-mundo-web-part",
+    "scriptResources": {
+      "hola-mundo-web-part": {
+        "type": "path",
+        "path": "hola-mundo-web-part.js"
+      },
+      "@microsoft/sp-webpart-base": {
+        "type": "component",
+        "id": "974a7777-0990-4136-8fa6-95d80114c2e0",
+        "version": "1.19.0"
+      }
+    }
+  }
+}

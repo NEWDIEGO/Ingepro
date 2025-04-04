@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "ingrpro-listado-client-side-solution",
+    "id": "e0c350a1-ff7a-4432-b75e-485c47603355",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.19.0"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "Ingrpro-Listado description"
+      },
+      "longDescription": {
+        "default": "Ingrpro-Listado description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "ingrpro-listado Feature",
+        "description": "The feature that activates elements of the ingrpro-listado solution.",
+        "id": "b54790a1-7c45-42ad-afad-d9671cd77599",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/ingrpro-listado.sppkg"
+  }
+}
